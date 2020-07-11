@@ -138,18 +138,39 @@ end
 
 DefNode = Struct.new(:name, :args, :body)
 IntegerNode = Struct.new(:value)
-CallNode = Struct.new(:name, :arg_exprs)
-VarRefNode = Struct.new(:name)
+
+class CallNode < Struct.new(:name, :arg_exprs)
+  def keys
+    name.start_with?("LAYOUT") && arg_exprs
+  end
+
+  def layer
+    name == "LT" && arg_exprs.first.value - 7
+  end
+
+  def key
+    name == "LT" && arg_exprs[1].key
+  end
+end
+
+class VarRefNode < Struct.new(:name)
+  def key
+    name
+  end
+end
 
 tokens = Tokenizer.new(File.read("keymap.c")).tokenize
 tree = Parser.new(tokens).parse
 
-combos = [15..18, 53..56].flat_map(&:to_a).flat_map do |i|
-  [15..18, 53..56].flat_map(&:to_a).map do |j|
-    left_key = tree.arg_exprs.first.arg_exprs[i].arg_exprs.last.name
-    right_key = tree.arg_exprs.first.arg_exprs[j].arg_exprs.last.name
-    layer = tree.arg_exprs.first.arg_exprs[i].arg_exprs[0].value - 7
-    becomes = tree.arg_exprs[layer].arg_exprs[j].name
+home_row_keys = [15..18, 53..56].flat_map(&:to_a)
+layers = tree.arg_exprs
+
+combos = home_row_keys.flat_map do |i|
+  home_row_keys.map do |j|
+    left_key = layers.first.keys[i].key
+    right_key = layers.first.keys[j].key
+    layer = layers.first.keys[i].layer
+    becomes = layers[layer].keys[j].key
 
     [Set.new([left_key, right_key]), becomes]
   end
