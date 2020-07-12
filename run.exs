@@ -1,4 +1,4 @@
-Code.compile_file("parser.ex")
+Code.compile_file("layout.ex")
 layouts = Layout.load("keymap.c") |> hd()
 
 Enum.each(0..8, fn i ->
