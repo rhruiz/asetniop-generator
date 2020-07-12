@@ -143,16 +143,4 @@ defmodule Layout do
   end
 
   def at({:call, {"LAYOUT" <> _, args}}, index), do: args |> Enum.at(index)
-
-  def key({:var, key}), do: key
-  def key({:call, {"LT", [{:integer, _layer}, {:var, key}]}}), do: key
-  def key({:call, {"LAYOUT" <> _, _}} = layout, index), do: layout |> at(index) |> key()
-
-  def layer({:call, {"LT", [{:integer, layer}, {:var, _key}]}}), do: layer - 7
-  def layer({:call, {"LAYOUTS", args}}, index), do: Enum.at(args, index)
-  def layer({:call, {"LAYOUT" <> _, _}} = layout, index), do: layout |> at(index) |> layer()
-
-  def lt?({:call, {"LT", [{:integer, _layer}, {:var, _key}]}}), do: true
-  def lt?(_), do: false
-  def lt?({:call, {"LAYOUT" <> _, _}} = layout, index), do: layout |> at(index) |> lt?()
 end
